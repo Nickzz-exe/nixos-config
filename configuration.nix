@@ -83,16 +83,15 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
-   vim_configurable # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+   environment.systemPackages = with pkgs; [
+   vim_configurable
    wget
    git
-   xfce.xfce4-session
-   xrdp
-   xorg.xinit
+   hdparm
   ];
 
 		#MY SHIT
+        
         #SSH	
 	services.openssh.enable = true;
 	services.openssh.settings = {
@@ -101,8 +100,8 @@
 	};
 
         #IMMICH
-        service.immich.enable = true;
-        service.immich.port = 2283;
+        #service.immich.enable = true;
+        #service.immich.port = 2283;
         # service.immich.mediaLocation=
 
 
