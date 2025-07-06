@@ -7,19 +7,14 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+    ./hardware-configuration.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  networking.hostName = "leanas"; # Define your hostname.
 
   # Enable networking
   networking.networkmanager.enable = true;
@@ -42,13 +37,13 @@
     LC_TIME = "it_IT.UTF-8";
   };
 
-  # Enable the X11 windowing system.
+  #RDP
   services.xserver.enable = true;
-
-  # Enable the XFCE Desktop Environment.
   services.xserver.displayManager.lightdm.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
-
+  services.xrdp.enable = true;
+  services.xrdp.defaultWindowManager = "startxfce4";
+  
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -75,8 +70,8 @@
     isNormalUser = true;
     description = "nik";
     extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.bash;
     packages = with pkgs; [
-    #  thunderbird
     ];
   };
 
@@ -92,32 +87,23 @@
    vim_configurable # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
    wget
    git
+   xfce.xfce4-session
+   xrdp
+   xorg.xinit
   ];
 
 		#MY SHIT
-	
-	#ALIASES
-	programs.bash.shellAliases = {
-  	rebuild = "sudo nixos-rebuild switch";
-	edit = "sudo vim /etc/nixos/configuration.nix";
-	};
-
-
-	#SSH
+        #SSH	
 	services.openssh.enable = true;
 	services.openssh.settings = {
 	PermitRootLogin = "no";
   	PasswordAuthentication = true; # Or false if using SSH keys only
 	};
 
-	#REMOTE FUCKING DESKTOP
-	services.xrdp = {
-  	enable = true;
-  	defaultWindowManager = "startxfce4";
-	};
-
-	networking.firewall.allowedTCPPorts = [ 3389 ]; # Allow RDP port
-
+        #IMMICH
+        service.immich.enable = true;
+        service.immich.port = 2283;
+        # service.immich.mediaLocation=
 
 
 
