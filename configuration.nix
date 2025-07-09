@@ -37,13 +37,6 @@
     LC_TIME = "it_IT.UTF-8";
   };
 
-  #RDP
-  services.xserver.enable = true;
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.xfce.enable = true;
-  services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "startxfce4";
-  
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -88,6 +81,7 @@
    wget
    git
    hdparm
+   discord-ptb
   ];
 
 		#MY SHIT
@@ -98,6 +92,23 @@
 	PermitRootLogin = "no";
   	PasswordAuthentication = true; # Or false if using SSH keys only
 	};
+        
+        #RAID
+        boot.swraid = {
+          enable = true;
+          mdadmConf = ''
+            ARRAY /dev/md0 metadata=1.2 spares=1 UUID=b2531a00:38521224:8d38f374:24e6db66'';
+          };
+
+        fileSystems."/home/nik/hdd" = {
+        device = "/dev/disk/by-uuid/8f5bc5e8-97c9-4c9d-9bc2-239c89887a83";
+        fsType = "ext4";
+        options = [ "nofail" ];
+        };      
+
+
+        #MISC
+
 
         #IMMICH
         #service.immich.enable = true;
