@@ -4,7 +4,6 @@
   imports =
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    inputs.home-manager.nixosModules.default
     ];
 
   # Bootloader.
@@ -118,14 +117,7 @@
         #MISC
         #FLAKES
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
-        #HOME MANAGER
-        home-manager = {
-          extraSpecialArgs = { inherit inputs; };
-          users = {
-            "nik" = import ./home.nix;
-          };
-        };
-
+        
         #IMMICH
         #service.immich.enable = true;
         #service.immich.port = 2283;
