@@ -4,7 +4,7 @@
   imports =
     [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    inputs.home-manager.nixosModules-default
+    inputs.home-manager.nixosModules.default
     ];
 
   # Bootloader.
@@ -123,8 +123,8 @@
           extraSpecialArgs = { inherit inputs; };
           users = {
             "nik" = import ./home.nix;
-          }
-        }
+          };
+        };
 
         #IMMICH
         #service.immich.enable = true;
