@@ -80,7 +80,7 @@
    vim_configurable
    wget
    git
-   hdparm
+   hd-idle
    discord-ptb
   ];
 
@@ -101,14 +101,26 @@
           };
 
         fileSystems."/home/nik/hdd" = {
-        device = "/dev/disk/by-uuid/8f5bc5e8-97c9-4c9d-9bc2-239c89887a83";
+        device = "/dev/disk/by-uuid/4fbcc4e4:a7b1a17e:56e3f60b:4df6e4d8";
         fsType = "ext4";
         options = [ "nofail" ];
         };      
 
+        
+        #DISK SPINDOWN
+        systemd.services.hd-idle = {
+          enable = true;
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            type = "forking";
+            ExecStart = "${pkgs.hd-idle}/bin/hd-idle -i 0 -a sda -i 200 -a sdb -i 200 -a sdc -i 200";
+          };
+        };
+
 
         #MISC
-
+        #FLAKES
+        nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
         #IMMICH
         #service.immich.enable = true;
