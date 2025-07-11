@@ -117,7 +117,7 @@
         #MISC
         #FLAKES
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
-        
+
         #IMMICH
         #service.immich.enable = true;
         #service.immich.port = 2283;
