@@ -22,7 +22,6 @@
               home-manager.useUserPackages = true;
               home-manager.users.nik = import ./home.nix;
             }
-            ./hardware-configuration.nix
             ./configuration.nix
                     ];
         };
