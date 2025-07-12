@@ -38,6 +38,7 @@
     layout = "us";
     variant = "";
   };
+          # Public key of the peer (not a file path).
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -87,13 +88,17 @@
         nix.settings.warn-dirty = false;
 
 
+
         #SSH	
 	services.openssh.enable = true;
 	services.openssh.settings = {
 	PermitRootLogin = "no";
   	PasswordAuthentication = true; # Or false if using SSH keys only
+          # Public key of the peer (not a file path).
 	};
-        
+
+
+
         #RAID
         systemd.services.mdmonitor.enable = false;
         boot.swraid = {
@@ -108,7 +113,8 @@
         options = [ "nofail" ];
         };      
 
-        
+
+
         #DISK SPINDOWN
         systemd.services.hd-idle = {
           enable = true;
@@ -120,6 +126,7 @@
         };
 
 
+
         #FLAKES
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
         
@@ -128,7 +135,8 @@
 
 
         #FIREWALLING
-        networking.firewall.allowedTCPPorts = [ 2283 80 443 ];
+        networking.firewall.allowedTCPPorts = [ 2283 80 443 51820 ];
+
 
 
         #NGINX
@@ -154,11 +162,14 @@
       };
 
 
+
         #ACME FOR SSL
         security.acme = {
           acceptTerms = true;
           defaults.email = "nicola.raffaelli06@gmail.com";
         };
+
+
 
         #DUCKDNS
         services.duckdns = {
@@ -168,6 +179,45 @@
           ];
           tokenFile = "/etc/nixos/ducktoken"; #TO REPLACE WITH DUCKDNS TOKEN FILE
         };
+
+
+
+        #WIREGUARD
+        networking.nat.enable = true;
+        networking.nat.externalInterface = "eno1";
+        networking.nat.internalInterfaces = [ "wg0" ];
+        boot.kernel.sysctl."net.ipv4.ip_forward" = true;
+        networking.firewall = {
+          allowedUDPPorts = [ 51820 ];
+         };
+        networking.wireguard.enable = true;
+        networking.wireguard.interfaces = {
+        wg0 = {
+          ips = [ "10.100.0.1/24" ];
+          listenPort = 51820;
+  
+          #Make wireguard work as a vpn 
+          postSetup = ''
+            ${pkgs.iptables}/bin/iptables -t nat -A POSTROUTING -s 10.100.0.0/24 -o eth0 -j MASQUERADE
+            '';
+
+          #This undoes the above command
+          #postShutdown = ''
+            #${pkgs.iptables}/bin/iptables -t nat -D POSTROUTING -s 10.100.0.0/24 -o eno1 -j MASQUERADE
+            #'';
+
+          privateKeyFile = "/home/nik/wireguard-keys/private";
+
+          peers = [
+            { # Nik
+            publicKey = "ad2tlzibos6kcucjcj98tX9cQBjt9iPF5l/xtEv4SXo=";
+            allowedIPs = [ "10.100.0.10/32" ];
+            }
+          ];
+      };
+    };
+
+
 
         #IMMICH
         systemd.tmpfiles.rules = [
