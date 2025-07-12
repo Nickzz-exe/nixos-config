@@ -80,7 +80,9 @@
    discord-ptb
   ];
 
-		#MY SHIT
+
+
+                                            #MY SHIT
         #GIT DIRTY WARNING REMOVAL
         nix.settings.warn-dirty = false;
 
@@ -122,54 +124,65 @@
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
         
       
-        #SERVICES
+                                            #SERVICES
 
 
-          #FIREWALLING
-          networking.firewall.allowedTCPPorts = [ 2283 80 883 ];
+        #FIREWALLING
+        networking.firewall.allowedTCPPorts = [ 2283 80 443 ];
 
 
-          #NGINX
-          services.nginx.enable = true;
-          services.nginx.virtualHosts."leanas.local" = {
-            #enableACME = true;
-            #forceSSL = true;
+        #NGINX
+        services.nginx = {
+          enable = true;
+
+          virtualHosts."immich.leanas.duckdns.org" = {
+            enableACME = true;
+            forceSSL = true;
             locations."/" = {
               proxyPass = "http://127.0.0.1:2283";
               proxyWebsockets = true;
               recommendedProxySettings = true;
               extraConfig = ''
+                rewrite ^/immich(/.*)$ $1 break;
                 client_max_body_size 50000M;
                 proxy_read_timeout   600s;
                 proxy_send_timeout   600s;
                 send_timeout         600s;
-              '';
-            };
+            '';
+          };
+        };
+      };
+
+
+        #ACME FOR SSL
+        security.acme = {
+          acceptTerms = true;
+          defaults.email = "nicola.raffaelli06@gmail.com";
         };
 
-
-          #DUCKDNS
-          services.duckdns = {
-            enable = true;
-            domains = [
-              "leanas.duckdns.org"
-            ];
-            tokenFile = "/etc/nixos/ducktoken"; #TO REPLACE WITH DUCKDNS TOKEN FILE
-          };
-
-          #IMMICH
-          systemd.tmpfiles.rules = [
-            #Type      Path         Mode User Group
-            "d   /mnt/hdd/immich    0750 immich  immich -"
+        #DUCKDNS
+        services.duckdns = {
+          enable = true;
+          domains = [
+            "leanas.duckdns.org"
           ];
-          services.immich = {
-            environment.LOG_LEVEL = "debug";
-            enable = true;
-            port = 2283;
-            mediaLocation = "/mnt/hdd/immich";
-            host = "127.0.0.1";
-            environment.IMMICH_TRUSTED_PROXIES="127.0.0.1";
-          };
+          tokenFile = "/etc/nixos/ducktoken"; #TO REPLACE WITH DUCKDNS TOKEN FILE
+        };
+
+        #IMMICH
+        systemd.tmpfiles.rules = [
+          #Type      Path         Mode User Group
+          "d   /mnt/hdd/immich    0750 immich  immich -"
+        ];
+
+        services.immich = {
+          environment.LOG_LEVEL = "debug";
+          enable = true;
+          port = 2283;
+          mediaLocation = "/mnt/hdd/immich";
+          host = "127.0.0.1";
+          environment.IMMICH_TRUSTED_PROXIES="127.0.0.1";
+        };
 
 
   #DO NOT TOUCH MORON 
