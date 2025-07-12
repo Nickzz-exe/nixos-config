@@ -58,7 +58,7 @@
   users.users.nik = {
     isNormalUser = true;
     description = "nik";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "services" ];
     shell = pkgs.bash;
     packages = with pkgs; [
     ];
@@ -81,7 +81,10 @@
   ];
 
 		#MY SHIT
-        
+        #GIT DIRTY WARNING REMOVAL
+        nix.settings.warn-dirty = false;
+
+
         #SSH	
 	services.openssh.enable = true;
 	services.openssh.settings = {
@@ -90,14 +93,15 @@
 	};
         
         #RAID
+        systemd.services.mdmonitor.enable = false;
         boot.swraid = {
           enable = true;
           mdadmConf = ''
-            ARRAY /dev/md0 metadata=1.2 spares=1 UUID=b2531a00:38521224:8d38f374:24e6db66'';
-          };
+        ARRAY /dev/md0 metadata=1.2 UUID=4fbcc4e4:a7b1a17e:56e3f60b:4df6e4d8 
+        '';};
 
-        fileSystems."/home/nik/hdd" = {
-        device = "/dev/disk/by-uuid/4fbcc4e4:a7b1a17e:56e3f60b:4df6e4d8";
+        fileSystems."/mnt/hdd" = {
+        device = "/dev/disk/by-uuid/8f5bc5e8-97c9-4c9d-9bc2-239c89887a83";
         fsType = "ext4";
         options = [ "nofail" ];
         };      
@@ -114,20 +118,52 @@
         };
 
 
-        #MISC
         #FLAKES
         nix.settings.experimental-features = [ "nix-command" "flakes" ];
+        
+      
+        #SERVICES
 
-        #IMMICH
-        #service.immich.enable = true;
-        #service.immich.port = 2283;
-        # service.immich.mediaLocation=
+          #NGINX
+          services.nginx.enable = true;
+          services.nginx.virtualHosts."leanas.local" = {
+            #enableACME = true;
+            #forceSSL = true;
+            locations."/" = {
+              proxyPass = "http://127.0.0.1:2283";
+              proxyWebsockets = true;
+              recommendedProxySettings = true;
+              extraConfig = ''
+                client_max_body_size 50000M;
+                proxy_read_timeout   600s;
+                proxy_send_timeout   600s;
+                send_timeout         600s;
+              '';
+            };
+        };
 
 
+          #FIREWALLING
+          networking.firewall.allowedTCPPorts = [ 2283 80 883 ];
+        
+          #IMMICH
+
+          systemd.tmpfiles.rules = [
+            #Type      Path         Mode User Group
+            "d   /mnt/hdd/immich    0750 immich  immich -"
+          ];
+
+          services.immich = {
+          environment.LOG_LEVEL = "debug";
+          enable = true;
+          port = 2283;
+          mediaLocation = "/mnt/hdd/immich";
+          host = "127.0.0.1";
+          environment.IMMICH_TRUSTED_PROXIES="127.0.0.1";
+          };
 
 
-
-
+  #DO NOT TOUCH MORON 
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
