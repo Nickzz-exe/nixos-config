@@ -124,6 +124,11 @@
       
         #SERVICES
 
+
+          #FIREWALLING
+          networking.firewall.allowedTCPPorts = [ 2283 80 883 ];
+
+
           #NGINX
           services.nginx.enable = true;
           services.nginx.virtualHosts."leanas.local" = {
@@ -143,23 +148,27 @@
         };
 
 
-          #FIREWALLING
-          networking.firewall.allowedTCPPorts = [ 2283 80 883 ];
-        
-          #IMMICH
+          #DUCKDNS
+          services.duckdns = {
+            enable = true;
+            domains = [
+              "leanas.duckdns.org"
+            ];
+            tokenFile = "/etc/nixos/ducktoken"; #TO REPLACE WITH DUCKDNS TOKEN FILE
+          };
 
+          #IMMICH
           systemd.tmpfiles.rules = [
             #Type      Path         Mode User Group
             "d   /mnt/hdd/immich    0750 immich  immich -"
           ];
-
           services.immich = {
-          environment.LOG_LEVEL = "debug";
-          enable = true;
-          port = 2283;
-          mediaLocation = "/mnt/hdd/immich";
-          host = "127.0.0.1";
-          environment.IMMICH_TRUSTED_PROXIES="127.0.0.1";
+            environment.LOG_LEVEL = "debug";
+            enable = true;
+            port = 2283;
+            mediaLocation = "/mnt/hdd/immich";
+            host = "127.0.0.1";
+            environment.IMMICH_TRUSTED_PROXIES="127.0.0.1";
           };
 
 

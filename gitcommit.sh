@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 	set -e
 	pushd /etc/nixos/
-	git add .
+	sudo git add .
 	sudo nixos-rebuild switch --flake /etc/nixos#leanas --show-trace
 	generation=$(sudo nix-env -p /nix/var/nix/profiles/system --list-generations | grep current | awk '{print $1}')
 		message="NixOS build #${generation}"
